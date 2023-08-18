@@ -11,19 +11,30 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64OutputStream;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.util.Base64;
 
 import com.google.gson.JsonObject;
@@ -87,6 +98,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");  // Set the MIME type or specific type of files you want to allow
+                startActivityForResult(intent, 2);
+            }
+        });
+
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,6 +130,16 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == pic_id) {
             bitmap = (Bitmap) data.getExtras().get("data");
             imgView.setImageBitmap(bitmap);
+
+            saveImage(bitmap,MainActivity.this);
+        }
+
+        if (requestCode == 2 && resultCode == RESULT_OK) {
+            Uri selectedFileUri = data.getData();
+            File selectedFile = new File(selectedFileUri.getPath());
+            String base64String = getStringFileofBase64(selectedFile);
+
+            Log.e("base64String>>>",base64String);
         }
     }
 
@@ -135,6 +165,57 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void saveImage(Bitmap bm, Context context) {
+        File imageFolder = new File(context.getCacheDir(), "images");
+        try {
+            if (!imageFolder.exists()) {
+                imageFolder.mkdirs();
+            }
+
+            Date date = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+            String name = dateFormat.format(date) + ".png";
+            File file = new File(imageFolder, name);
+
+            FileOutputStream stream = new FileOutputStream(file);
+            BufferedOutputStream bos = new BufferedOutputStream(stream);
+
+            bm.compress(Bitmap.CompressFormat.PNG, 100, bos);
+            bos.flush();
+            bos.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getStringFileofBase64(File f) {
+        InputStream inputStream = null;
+        String encodedFile= "", lastVal;
+        try {
+            inputStream = new FileInputStream(f.getAbsolutePath());
+
+            byte[] buffer = new byte[10240];//specify the size to allow
+            int bytesRead;
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            Base64OutputStream output64 = new Base64OutputStream(output, Base64.DEFAULT);
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                output64.write(buffer, 0, bytesRead);
+            }
+            output64.close();
+            encodedFile =  output.toString();
+        }
+        catch (FileNotFoundException e1 ) {
+            e1.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        lastVal = encodedFile;
+        return lastVal;
     }
 
 }

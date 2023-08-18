@@ -4,7 +4,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitInstance {
-    String url = "https://scrap.workwiseprojects.com/";
+    String url = "Your Api";
     public static RetrofitInstance retrofitInstance;
     public static ApiInterface apiInterface;
     RetrofitInstance() {
