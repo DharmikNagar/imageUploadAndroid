@@ -13,7 +13,6 @@
         android:layout_height="135dp"
         android:layout_centerInParent="true"
         android:src="@drawable/ic_launcher_background" />
-
     <Button
         android:id="@+id/btn"
         android:layout_below="@+id/imgView"
@@ -28,6 +27,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Open Camera"
+        />
+    <Button
+        android:id="@+id/btnPdf"
+        android:layout_toRightOf="@+id/btnCamera"
+        android:layout_below="@+id/imgView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select PDF"
         />
     <Button
         android:id="@+id/btnSubmit"
